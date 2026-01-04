@@ -41,7 +41,7 @@ jobs:
 
       - name: Sync and push
         env:
-          GIT_COMMIT_MSG: "CI: Deploy site from $GITHUB_REPOSITORY@$GITHUB_SHA"
+          GIT_COMMIT_MSG: "CI: Deploy site from ${{ github.repository }}@${{ github.sha }}"
           GIT_SSH_COMMAND: ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o StrictHostKeyChecking=yes
         run: |
           rsync -a --delete site/ deploy_repo/
