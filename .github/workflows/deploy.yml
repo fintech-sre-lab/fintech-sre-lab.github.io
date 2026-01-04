@@ -1,0 +1,57 @@
+name: Build and deploy MkDocs site
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs mkdocs-material
+
+      - name: Build site
+        run: mkdocs build -d site
+
+      - name: Setup SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Clone target repo
+        env:
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o StrictHostKeyChecking=yes
+        run: |
+          git clone --depth 1 --branch main git@github.com:fintech-sre-lab/fintech-sre-lab.github.io.git deploy_repo
+
+      - name: Sync and push
+        env:
+          GIT_COMMIT_MSG: "CI: Deploy site from ${{ github.repository }}@${{ github.sha }}"
+          GIT_SSH_COMMAND: ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o StrictHostKeyChecking=yes
+        run: |
+          rsync -a --delete site/ deploy_repo/
+          cd deploy_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "$GIT_COMMIT_MSG"
+            git push origin main || { echo "Error: Failed to push changes to origin/main. Please check network connectivity, SSH permissions, and branch status."; exit 1; }
+          else
+            echo "No changes to deploy"
+          fi
