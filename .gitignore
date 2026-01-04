@@ -1,0 +1,56 @@
+# macOS
+.DS_Store
+Icon\r
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+env/
+venv/
+.venv/
+ENV/
+build/
+dist/
+*.egg-info/
+*.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.coverage
+.pytest_cache/
+.mypy_cache/
+
+# MkDocs / site build
+site/
+site_dir/
+mkdocs/material/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+pnpm-lock.yaml
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Logs
+*.log
+
+# Secrets and env files
+.env
+*.secret
+
+# Misc
+.cache/
+Thumbs.db
+ehthumbs.db
+desktop.ini
